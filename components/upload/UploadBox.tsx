@@ -13,7 +13,7 @@ export default function UploadBox({ onImageSelect }: UploadBoxProps) {
     if (!file) return;
     onImageSelect(file);
   };
-
+ 
   return (
     <div
       onClick={() => inputRef.current?.click()}

@@ -19,7 +19,7 @@ export default function ResultCard({ loading }: Props) {
         </div>
       ) : (
         <div className="mt-5 space-y-4">
-
+ 
           <div>
             <p className="text-sm text-slate-500">Título</p>
 

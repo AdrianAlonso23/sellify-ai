@@ -11,7 +11,7 @@ export default function PreviewCard({ image }: PreviewProps) {
       <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-blue-600">
         Vista previa
       </p>
-
+ 
       <div className="overflow-hidden rounded-2xl bg-slate-100">
         <Image
           src={image}

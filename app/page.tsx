@@ -28,7 +28,7 @@ export default function Home() {
       <Navbar/>
       <Hero/>
       <section className="mx-auto max-w-7xl px-6 py-24 lg:px-12">
-        
+
         <div className="mb-12 text-center">
           <p className="font-semibold uppercase tracking-widest text-blue-600">
             Demo en directo
@@ -50,7 +50,7 @@ export default function Home() {
           {image && <PreviewCard image={image} />}
 
         </div>
-
+ 
         {image && (
           <div className="mt-8">
 

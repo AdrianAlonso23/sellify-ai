@@ -53,7 +53,7 @@ export default function Hero() {
             </p>
 
             <h3 className="mt-2 text-xl font-bold">
-              Nike Air Max 270 negras · Talla 42
+              Nike Air Max 90  · Talla 42
             </h3>
 
             <p className="mt-3 text-slate-600">

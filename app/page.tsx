@@ -7,21 +7,72 @@ import UploadBox from "@/components/upload/UploadBox";
 import PreviewCard from "@/components/upload/PreviewCard";
 import ResultCard from "@/components/upload/ResultCard";
 import FeatureCard from "@/components/Featurecard";
+import History from "@/components/dashboard/History";
+
 
 export default function Home() {
   const [image, setImage] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [refreshHistory, setRefreshHistory] = useState(0);
 
   const handleImage = (file: File) => {
     setImage(URL.createObjectURL(file));
+    setImageFile(file);
   };
 
-  const handleGenerate = () => {
+  const toBase64 = (file: File): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.readAsDataURL(file);
+
+    reader.onload = () => resolve(reader.result as string);
+
+    reader.onerror = reject;
+  });
+
+  const handleGenerate = async () => {
+    if (!imageFile) return;
+
     setLoading(true);
 
-    setTimeout(() => {
+    try {
+      const base64 = await toBase64(imageFile);
+
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ image: base64 }),
+      });
+
+      const data = await response.json();
+
+      setResult(data);
+
+      await fetch("/api/save-product", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...data,
+          image_url: image,
+        }),
+      });
+
+      setRefreshHistory((prev) => prev + 1);
+
+    } catch (error) {
+      console.error(error);
+    } finally {
       setLoading(false);
-    }, 2500);
+    }
+
+    setRefreshHistory((prev) => prev + 1);
   };
   return (
     <main>
@@ -62,7 +113,7 @@ export default function Home() {
             </button>
 
             <div className="mt-8">
-              <ResultCard loading={loading} />
+              <ResultCard loading={loading} result={result} />
             </div>
 
           </div>
@@ -110,17 +161,7 @@ export default function Home() {
 
       </section>
 
-      <section id="precios">
-        <h2>Empieza gratis</h2>
-
-        <p>
-          Prueba Sellify AI antes de decidir si quieres el plan Pro.
-        </p>
-
-        <button>
-          Crear mi primer anuncio
-        </button>
-      </section>
+      <History refresh={refreshHistory} />
 
       <footer>
         <p>© 2026 Sellify AI</p>

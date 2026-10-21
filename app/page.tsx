@@ -39,6 +39,26 @@ export default function Home() {
     setLoading(true);
 
     try {
+      // 1. Subir la imagen a Supabase Storage
+      const formData = new FormData();
+      formData.append("file", imageFile);
+
+      const uploadResponse = await fetch("/api/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      const uploadData = await uploadResponse.json();
+
+      if (!uploadResponse.ok || !uploadData.image_url) {
+        throw new Error(
+          uploadData.error || "No se pudo subir la imagen"
+        );
+      }
+
+      console.log("URL PERMANENTE:", uploadData.image_url);
+
+      // 2. Generar el anuncio con IA
       const base64 = await toBase64(imageFile);
 
       const response = await fetch("/api/generate", {
@@ -51,28 +71,41 @@ export default function Home() {
 
       const data = await response.json();
 
+      if (!response.ok) {
+        throw new Error(data.error || "No se pudo generar el anuncio");
+      }
+
       setResult(data);
 
-      await fetch("/api/save-product", {
+      // 3. Guardar el producto con la URL permanente
+      const saveResponse = await fetch("/api/save-product", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ...data,
-          image_url: image,
+          image_url: uploadData.image_url,
         }),
       });
 
-      setRefreshHistory((prev) => prev + 1);
+      const saveData = await saveResponse.json();
 
+      if (!saveResponse.ok) {
+        throw new Error(
+          saveData.error || "No se pudo guardar el producto"
+        );
+      }
+
+      console.log("PRODUCTO GUARDADO:", saveData);
+
+      // 4. Actualizar el historial
+      setRefreshHistory((prev) => prev + 1);
     } catch (error) {
-      console.error(error);
+      console.error("ERROR EN handleGenerate:", error);
     } finally {
       setLoading(false);
     }
-
-    setRefreshHistory((prev) => prev + 1);
   };
   return (
     <main>

@@ -26,6 +26,25 @@ interface HistoryProps {
 export default function History({ refresh }: HistoryProps) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  async function copyText(text: string, type: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setMessage(`${type} copiado correctamente`);
+
+      setTimeout(() => {
+        setMessage("");
+      }, 2500);
+    } catch (error) {
+      console.error("Error al copiar:", error);
+      setMessage("No se ha podido copiar el texto");
+
+      setTimeout(() => {
+        setMessage("");
+      }, 2500);
+    }
+  }
 
   useEffect(() => {
     loadProducts();
@@ -62,6 +81,11 @@ export default function History({ refresh }: HistoryProps) {
       <h2 className="mb-8 text-3xl font-bold">
         Mis anuncios ({products.length})
       </h2>
+      {message && (
+        <div className="mb-6 rounded-xl bg-green-100 px-4 py-3 text-sm font-medium text-green-700">
+          {message}
+        </div>
+      )}
 
       {products.length === 0 ? (
         <div className="rounded-3xl border border-dashed p-12 text-center text-slate-500">
@@ -91,6 +115,21 @@ export default function History({ refresh }: HistoryProps) {
               <p className="mt-2 text-sm text-slate-600 line-clamp-3">
                 {product.description}
               </p>
+              <div className="mt-4 flex gap-2">
+                <button
+                  onClick={() => copyText(product.title, "Título")}
+                  className="flex-1 rounded-xl bg-blue-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                >
+                  Copiar título
+                </button>
+
+                <button
+                  onClick={() => copyText(product.description, "Descripción")}
+                  className="flex-1 rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200"
+                >
+                  Copiar descripción
+                </button>
+              </div>
 
               <div className="mt-4 flex items-center justify-between">
                 <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
